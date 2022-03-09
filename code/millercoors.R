@@ -55,7 +55,6 @@ spend_by_subcategory1_by_plant <- data_clean %>%
   group_by(`Sub Category1`, Plant, `Plant Name`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
   
-
 top_ten_subcategory1_by_plant <- data_clean %>% 
   group_by(Plant, `Plant Name`, `Sub Category1`) %>% 
   summarise(total_spend = sum(`Total Cost*`)) %>% 
