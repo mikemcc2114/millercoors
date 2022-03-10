@@ -1,8 +1,8 @@
 library(tidyverse)
 library(readxl)
 library(here)
-library(s)
 library(DataExplorer)
+library(formattable)
 
 ## items to do
 ## fix columns to currency format???
@@ -50,15 +50,22 @@ spend_and_count_of_plants_by_subcategory1 <- data_clean %>%
   group_by(`Sub Category1`) %>% 
   summarise(total_spend = sum(`Total Cost*`), 
             number_of_plants = n_distinct(Plant)) %>% 
+  mutate(percentage_spend = percent(total_spend / sum(total_spend))) %>% 
+  arrange(desc(total_spend), by_group = TRUE)
 
 spend_by_subcategory1_by_plant <- data_clean %>% 
   group_by(`Sub Category1`, Plant, `Plant Name`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
-  
+
 top_ten_subcategory1_by_plant <- data_clean %>% 
   group_by(Plant, `Plant Name`, `Sub Category1`) %>% 
   summarise(total_spend = sum(`Total Cost*`)) %>% 
   slice_max(total_spend, n = 10) %>% 
   arrange(desc(total_spend), .by_group = TRUE)
+
+spend_by_subcategory1_by_vendor_by_plant <- data_clean %>% 
+  group_by(`Sub Category1`, `Vendor*`, `Vendor Name*`, Plant, `Plant Name`) %>% 
+  summarise(total_spend = sum(`Total Cost*`))
+
 
 
