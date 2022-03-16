@@ -2,6 +2,8 @@ library(tidyverse)
 library(readxl)
 library(here)
 library(formattable)
+library(treemapify)
+library(ggplot2)
 
 ## items to do
 # fix columns to currency format???
@@ -33,8 +35,19 @@ length(data_raw$`Material group`) - length(data_clean$`Material group`)
 ### section 2 - data exploration
 
 total_spend_by_plant <- data_clean %>% 
-  group_by(Plant, `Plant Name`) %>% 
+  group_by(`Plant Name`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
+
+treemap_plant <- ggplot(total_spend_by_plant, aes(area = total_spend, 
+                                            fill = total_spend, 
+                                            label = `Plant Name`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 15) 
+treemap_plant
+
+# https://r-charts.com/part-whole/treemapify/
   
 total_spend_by_vendor <- data_clean %>% 
   group_by(`Vendor*`, `Vendor Name*`) %>% 
@@ -65,6 +78,16 @@ top_ten_subcategory1_by_plant <- data_clean %>%
   summarise(total_spend = sum(`Total Cost*`)) %>% 
   slice_max(total_spend, n = 10) %>% 
   arrange(desc(total_spend), .by_group = TRUE)
+
+treemap_top10 <- ggplot(top_ten_subcategory1_by_plant, 
+                        aes(area = total_spend, 
+                            fill = total_spend, 
+                            label = `Plant Name`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 15) 
+treemap_top10
 
 spend_by_subcategory1_by_vendor_by_plant <- data_clean %>% 
   group_by(`Sub Category1`, `Vendor*`, `Vendor Name*`, Plant, `Plant Name`) %>% 
@@ -104,6 +127,16 @@ spend_by_top_ten_subcategory1 <- data_clean %>%
             number_vendors = n_distinct(`Vendor*`)) %>% 
   slice_max(total_spend, n = 10) %>% 
   arrange(desc(total_spend), .by_group = TRUE)
+
+treemap_top10 <- ggplot(spend_by_top_ten_subcategory1, 
+                        aes(area = total_spend, 
+                            fill = total_spend, 
+                            label = `Sub Category1`)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 15)
+treemap_top10
 
 # Median number of Vendors for the top 10 Sub Category1
 
