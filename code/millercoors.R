@@ -4,6 +4,7 @@ library(here)
 library(formattable)
 library(treemapify)
 library(ggplot2)
+library(alluvial)
 
 ## items to do
 # fix columns to currency format???
@@ -34,6 +35,20 @@ length(data_raw$`Material group`) - length(data_clean$`Material group`)
 ###############################################################################
 ### section 2 - data exploration
 
+spend_sankey_data <- data_clean %>% 
+  group_by(`Legacy Company`, `Plant Name`) %>% 
+  summarise(total_spend = sum(`Total Cost*`))
+
+spend_sankey_diagram <- alluvial(spend_sankey_data, 
+                                 freq = spend_sankey_data$total_spend)
+
+count_sankey_data <- data_clean %>% 
+  group_by(`Legacy Company`, `Plant Name`) %>% 
+  summarise(number_vendors = n_distinct(`Vendor*`))
+
+count_sankey_diagram <- alluvial(count_sankey_data, 
+                                 freq = count_sankey_data$number_vendors)
+
 total_spend_by_plant <- data_clean %>% 
   group_by(`Plant Name`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
@@ -62,6 +77,12 @@ vendor_count_by_subcategory1 <- data_clean %>%
   summarise(number_vendors = n_distinct(`Vendor*`)) %>% 
   arrange(desc(number_vendors), .by_group = TRUE)
 
+top_ten_vendor_count_by_subcategory1 <- data_clean %>% 
+  group_by(`Sub Category1`) %>% 
+  summarise(number_vendors = n_distinct(`Vendor*`)) %>% 
+  slice_max(number_vendors, n = 10) %>%  
+  arrange(desc(number_vendors), .by_group = TRUE)
+
 spend_and_count_of_plants_by_subcategory1 <- data_clean %>% 
   group_by(`Sub Category1`) %>% 
   summarise(total_spend = sum(`Total Cost*`), 
@@ -74,7 +95,7 @@ spend_by_subcategory1_by_plant <- data_clean %>%
   summarise(total_spend = sum(`Total Cost*`))
 
 top_ten_subcategory1_by_plant <- data_clean %>% 
-  group_by(Plant, `Plant Name`, `Sub Category1`) %>% 
+  group_by(`Plant Name`, `Sub Category1`) %>% 
   summarise(total_spend = sum(`Total Cost*`)) %>% 
   slice_max(total_spend, n = 10) %>% 
   arrange(desc(total_spend), .by_group = TRUE)
