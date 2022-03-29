@@ -6,10 +6,6 @@ library(treemapify)
 library(ggplot2)
 library(alluvial)
 
-## items to do
-# fix columns to currency format???
-# remove "direct material" data - see assignment
-
 # for bottom, unanswered columns, come up with potential savings/ease of use
 # category for each and rank to make recommendations
 
@@ -31,6 +27,9 @@ data_clean <- data_raw %>%
 
 # number of direct material items removed = 
 length(data_raw$`Material group`) - length(data_clean$`Material group`)
+
+# force standard (not scientific) notation
+options(scipen = 999)
 
 ###############################################################################
 ### section 2 - data exploration
@@ -161,7 +160,7 @@ treemap_top10
 
 # Median number of Vendors for the top 10 Sub Category1
 
-median_number_vendors <- median(spend_by_top_ten_subcategory1$number_of_vendors)
+median_number_vendors <- median(spend_by_top_ten_subcategory1$number_vendors)
 
 # Number of Vendors by Plant
 
@@ -171,6 +170,8 @@ vendor_count_by_plant <- data_clean %>%
 
 # Examples where different Plants use the same Sub Category1 product and the 
 # value of the total spend among Plants in that Sub Category1
+
+
 
 # RFI - assumption of savings for this?
 
@@ -194,6 +195,8 @@ vendor_count_and_spend_by_subcategory1 <- data_clean %>%
 # unbeknownst to each other.  As a result, one group’s success in negotiating a
 # price for goods or services is done at the expense of the other group’s price.
 
+spend_by_subcategory1_by_vendor_by_plant
+
 # The spend categories to focus on to get the best value are unknown … thus we 
 # (the company) may be spending our efforts on consolidating the supply base in 
 # areas where the spend or relationships don’t matter with respect to overall value.
@@ -206,9 +209,15 @@ vendor_count_and_spend_by_subcategory1 <- data_clean %>%
 purchase_orders_by_plant_by_day <- data_clean %>% 
   group_by(`Legacy Company`, Plant, `Plant Name`, `Document date`, 
            `Vendor*`) %>% 
-  summarise(number_purchases = n_distinct(`Purchasing Document`),
+  summarise(number_purchase_orders = n_distinct(`Purchasing Document`),
             total_spend = sum(`Total Cost*`)) %>% 
-  filter(number_purchases != 1)
+  filter(number_purchase_orders != 1)
+
+# summarized by plant
+
+potential_purchase_order_consolidation_by_plant <- purchase_orders_by_plant_by_day %>% 
+  group_by(`Plant Name`) %>% 
+  summarise(spend = sum(total_spend))
 
 # Different breweries (plants) use different suppliers for the same part thus 
 #fragmenting spend.  How much was spent with companies with higher prices for 
@@ -240,9 +249,13 @@ savings_by_part <- data_clean %>%
 # cheaper aftermarket parts? Shift spending to aftermarket to save $?
   
 spend_by_OEM <- data_clean %>% 
-  group_by(Plant, `OEM / Aftermarket`) %>% 
+  group_by(`Plant Name`, `OEM / Aftermarket`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
-  
+
+
+# plants spending different prices on same part? 
+pricing_differential <- data_clean %>% 
+  group_by(`Plant Name`, Material) %>% 
   summarise(total_spend = sum(`Total Cost*`),
             number_plants = n_distinct(Plant),
             number_prices = n_distinct(`Price/unit*`),
