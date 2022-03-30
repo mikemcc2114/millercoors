@@ -266,3 +266,27 @@ pricing_differential <- data_clean %>%
               (sum(`Order quantity`) * min(`Price/unit*`))) %>% 
   arrange(desc(potential_savings), .by_group = TRUE) %>% 
   mutate(cumulative_savings = cumsum(potential_savings))
+
+################################################################################
+### kraljik? categorization = # suppliers vs annual spend = use to build bubble chart
+
+kraljik_categories <- data_clean %>% 
+  group_by(`Sub Category1`) %>% 
+  summarise(number_vendors = n_distinct(`Vendor*`), 
+            total_spend = sum(`Total Cost*`)) %>% 
+  mutate(percentage_spend = percent(total_spend / sum(total_spend)))
+
+median_vendors <- median(kraljik_categories$number_vendors)
+mean_vendors <- mean(kraljik_categories$number_vendors)
+median_spend <- median(kraljik_categories$total_spend)
+mean_spend <- mean(kraljik_categories$total_spend)
+
+
+ggplot(kraljik_categories, aes(x = number_vendors, y = total_spend, size = total_spend)) + 
+  geom_point(alpha = 0.7)
+
+### don't do it this way - make an assumptions slide and categorize that way
+eg filters = low, transmissions = high, etc
+
+# what to use to determine high/low: median or mean?
+
