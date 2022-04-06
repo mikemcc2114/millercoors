@@ -268,7 +268,19 @@ pricing_differential <- data_clean %>%
   mutate(cumulative_savings = cumsum(potential_savings))
 
 ################################################################################
+### recurring vs nonrecurring spend - add to findings
+
+recurring_purchases <- data_clean %>% 
+  group_by(Material) %>% 
+  summarize(n = n(),
+            total_spend = sum(`Total Cost*`)) %>% 
+  arrange(desc(total_spend))
+
+
+################################################################################
 ### kraljik? categorization = # suppliers vs annual spend = use to build bubble chart
+### don't do it this way - make an assumptions slide and categorize that way
+### eg filters = low, transmissions = high, etc
 
 kraljik_categories <- data_clean %>% 
   group_by(`Sub Category1`) %>% 
@@ -285,8 +297,6 @@ mean_spend <- mean(kraljik_categories$total_spend)
 ggplot(kraljik_categories, aes(x = number_vendors, y = total_spend, size = total_spend)) + 
   geom_point(alpha = 0.7)
 
-### don't do it this way - make an assumptions slide and categorize that way
-eg filters = low, transmissions = high, etc
 
-# what to use to determine high/low: median or mean?
+
 
