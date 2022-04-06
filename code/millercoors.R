@@ -249,9 +249,14 @@ savings_by_part <- data_clean %>%
 # cheaper aftermarket parts? Shift spending to aftermarket to save $?
   
 spend_by_OEM <- data_clean %>% 
-  group_by(`Plant Name`, `OEM / Aftermarket`) %>% 
+  group_by(`Legacy Company`,`Plant Name`, `OEM / Aftermarket`) %>% 
   summarise(total_spend = sum(`Total Cost*`))
 
+ggplot(spend_by_OEM, aes(x =`Plant Name`, 
+                         fill = `OEM / Aftermarket`,
+                         y = total_spend)) +
+  geom_bar(position="dodge", stat="identity")
+  
 
 # plants spending different prices on same part? 
 pricing_differential <- data_clean %>% 
